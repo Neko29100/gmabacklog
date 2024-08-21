@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.0/nouislider.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.0/nouislider.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js" defer></script>
+    <style>
+      .color-picker-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+          cursor: pointer; /* Ensures the cursor shows as clickable for the entire item */
+      }
+  
+      .name-label {
+          cursor: pointer; /* Ensures the cursor shows as clickable for the name label */
+          margin-right: 10px; /* Adds space between label and color picker */
+          user-select: none; /* Prevents text selection when clicking */
+      }
+  
+      .color-picker {
+          cursor: pointer; /* Ensures the cursor shows as clickable for the color picker */
+      }
+  </style>
+  
+</head>
+<body>
+  <canvas id="myChart" style="display: block; margin: 20px 20px 20px 0; margin-right: 20px;"></canvas>
+
+
+  <div style="margin-bottom: 20px;">
+    <label for="cutoff" style="display: block; margin-bottom: 0px;">Cutoff Value</label>
+    <input type="number" id="cutoff" step="1" min="0" style="display: block; width: 10%;">
+    <label for="numNames">N° of players:</label>
+    <input type="number" id="numNames" step="1" value="10" min="0" style="display: block; width: 10%;">
+    
+
+  </div>
+  
+  
+  <div id="slider" style="width: 50%; margin: 0 auto;"></div>
+
+  <label style="display: block; margin-bottom: 0px;">
+      <input type="checkbox" id="dotsToggle">
+      Show Dots
+  </label>
+  <label style="display: block; margin-bottom: 10px;">
+    <input type="checkbox" id="labelsToggle" checked>
+    Show Names on graph
+</label>
+<button id="toggleNamesButton">Hide All</button>
+
+
+
+<div id="colorPickerContainer" style="margin-bottom: 20px;"></div>
+  
+    
+</body>
+</html>
