@@ -8,10 +8,22 @@ let areAllNamesHidden = false;
 const colors = {}; // Store colors for each name
 const visibilityState = {}; // Tracks the visibility of each dataset (name)
 
+const sheetSelect = document.getElementById('sheetSelect');
+sheetSelect.addEventListener('change', async() => {
+    await fetchChartData()
+    const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+    const start = labels.indexOf(startLabel);
+    const end = labels.indexOf(endLabel);
+    updateChart(start, end);
+});
+
 
 async function fetchChartData() {
     try {
-        const response = await fetch('/data');
+
+
+        const sheetName = document.getElementById('sheetSelect').value;
+        const response = await fetch(`/data?sheet=${sheetName}`);
         const data = await response.json();
 
         labels = data.slice(1).map(row => row[0]);
@@ -19,6 +31,8 @@ async function fetchChartData() {
 
         // Initialize colors and color pickers
         initializeColorPickers();
+
+
 
         // Initialize the slider with the start handles positioned at the full range
         const slider = document.getElementById('slider');
@@ -89,6 +103,21 @@ async function fetchChartData() {
 
         document.getElementById('toggleNamesButton').addEventListener('click', toggleAllNames);
 
+        const refreshColors = document.getElementById('refreshColors');
+        refreshColors.addEventListener('click', () => {
+            sortedNames.forEach(name => {
+                const color = getRandomColor(name); // Get current color
+                colors[name] = color; // Store color for this name
+            });
+
+            // Call updateChart to refresh chart with new colors
+            const [startLabel, endLabel] = document.getElementById('slider').noUiSlider.get();
+            const start = labels.indexOf(startLabel);
+            const end = labels.indexOf(endLabel);
+            updateChart(start, end);
+        });
+
+
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -126,7 +155,7 @@ function initializeColorPickers(startIndex, endIndex) {
 
     // Add event listeners for color pickers
     document.querySelectorAll('.color-picker').forEach(picker => {
-        picker.addEventListener('change', event => { 
+        picker.addEventListener('change', event => {
             const name = event.target.getAttribute('data-name');
             const newColor = event.target.value;
             colors[name] = newColor;
@@ -160,43 +189,42 @@ function getRandomColor(name) {
     return colors[name];
 }
 
-    function toggleAllNames() {
-        const names = allData[0].slice(1); // Get all names from the data
-    
-        if (areAllNamesHidden) {
-            // Show all names
-            names.forEach(name => {
-                visibilityState[name] = true;
-            });
-            document.getElementById('toggleNamesButton').textContent = 'Hide All'; // Update button text
-        } else {
-            // Hide all names
-            names.forEach(name => {
-                visibilityState[name] = false;
-            });
-            document.getElementById('toggleNamesButton').textContent = 'Show All'; // Update button text
-        }
-    
-        // Update the chart with the current range
-        const [startLabel, endLabel] = document.getElementById('slider').noUiSlider.get();
-        const start = labels.indexOf(startLabel);
-        const end = labels.indexOf(endLabel);
-        updateChart(start, end);
-    
-        // Toggle the state
-        areAllNamesHidden = !areAllNamesHidden;
+function toggleAllNames() {
+    const names = allData[0].slice(1); // Get all names from the data
+
+    if (areAllNamesHidden) {
+        // Show all names
+        names.forEach(name => {
+            visibilityState[name] = true;
+        });
+        document.getElementById('toggleNamesButton').textContent = 'Hide All'; // Update button text
+    } else {
+        // Hide all names
+        names.forEach(name => {
+            visibilityState[name] = false;
+        });
+        document.getElementById('toggleNamesButton').textContent = 'Show All'; // Update button text
     }
-    
+
+    // Update the chart with the current range
+    const [startLabel, endLabel] = document.getElementById('slider').noUiSlider.get();
+    const start = labels.indexOf(startLabel);
+    const end = labels.indexOf(endLabel);
+    updateChart(start, end);
+
+    // Toggle the state
+    areAllNamesHidden = !areAllNamesHidden;
+}
+
 
 
 function updateChart(startIndex, endIndex) {
     const filteredLabels = labels.slice(startIndex, endIndex + 1);
     const cutoffValue = parseFloat(document.getElementById('cutoff').value) || 0;
-    const showDots = !document.getElementById('dotsToggle').checked; // Check if dots should be shown
-    showLabels = document.getElementById('labelsToggle').checked; // Check if labels should be shown
+    const showDots = !document.getElementById('dotsToggle').checked;
+    showLabels = document.getElementById('labelsToggle').checked;
 
     const numNames = parseInt(document.getElementById('numNames').value) || Infinity;
-
     const datasets = [];
     const names = allData[0].slice(1);
 
@@ -207,7 +235,6 @@ function updateChart(startIndex, endIndex) {
     });
 
     const sortedNames = Object.keys(totalPoints).sort((a, b) => totalPoints[b] - totalPoints[a]);
-
     const topNames = sortedNames.slice(0, numNames);
 
     topNames.forEach(name => {
@@ -216,13 +243,13 @@ function updateChart(startIndex, endIndex) {
 
         if (filteredDataSlice.length > 0) {
             datasets.push({
-                label: showLabels ? name : '', 
+                label: showLabels ? name : '',
                 data: filteredDataSlice,
-                borderColor: colors[name] || getRandomColor(name), 
-                backgroundColor: showDots ? (colors[name] || getRandomColor(name)) : 'transparent', 
+                borderColor: colors[name] || getRandomColor(name),
+                backgroundColor: showDots ? (colors[name] || getRandomColor(name)) : 'transparent',
                 borderWidth: 2,
                 pointRadius: showDots ? 0 : 2,
-                hidden: visibilityState[name] === false // Apply visibility state
+                hidden: visibilityState[name] === false
             });
         }
     });
@@ -230,6 +257,8 @@ function updateChart(startIndex, endIndex) {
     if (chart) {
         chart.destroy();
     }
+
+
 
     const ctx = document.getElementById('myChart').getContext('2d');
     chart = new Chart(ctx, {
@@ -257,12 +286,33 @@ function updateChart(startIndex, endIndex) {
             plugins: {
                 legend: {
                     display: showLabels,
+                },
+                annotation: {
+                    annotations: {
+                        flagDate: {
+                            type: 'line',
+                            xMin: '09/25/2021',
+                            xMax: '09/25/2021',
+                            borderColor: 'grey',
+                            borderWidth: 1,
+                            label: {
+                                text: 'Date',
+                                enabled: true,
+                                position: 'center',
+                                backgroundColor: 'rgba(255, 255, 255, 0.8)', // Background color for readability
+                                color: 'black', // Text color
+                                font: {
+                                    size: 12, // Font size
+                                    weight: 'bold' // Font weight
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     });
 
-    // Re-initialize color pickers after chart update
     initializeColorPickers(startIndex, endIndex);
 }
 
