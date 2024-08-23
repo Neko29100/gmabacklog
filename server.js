@@ -10,7 +10,7 @@ const sheets = google.sheets({ version: 'v4', auth: 'AIzaSyAbBLHfjrG_a-_J164or-F
 async function fetchData(sheetName) {
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId: '1rr-A067YWZbvrAE5_axiwtsC3gXg88xOl53C4NuhNCc',
-        range: `${sheetName}!A1:AR239`,  // Use the sheetName parameter here
+        range: `${sheetName}!A1:AR241`,  // Use the sheetName parameter here
     });
     return response.data.values;
 }
