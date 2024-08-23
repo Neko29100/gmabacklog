@@ -101,6 +101,47 @@ async function fetchChartData() {
             updateChart(start, end);
         });
 
+        document.getElementById('exportJPG').addEventListener('click', () => {
+            const canvas = document.getElementById('myChart');
+            const originalWidth = canvas.width;
+            const originalHeight = canvas.height;
+
+            // Scale factor for higher resolution
+            const scaleFactor = 2; // Increase to improve quality
+
+            // Create a temporary canvas to scale up the chart
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+
+            tempCanvas.width = originalWidth * scaleFactor;
+            tempCanvas.height = originalHeight * scaleFactor;
+
+            // Scale up and redraw the chart
+            tempCtx.scale(scaleFactor, scaleFactor);
+
+            // Draw chart on the temporary canvas
+            tempCtx.drawImage(canvas, 0, 0);
+
+            // Fill the canvas with white background
+            tempCtx.save();
+            tempCtx.globalCompositeOperation = 'destination-over';
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            tempCtx.restore();
+
+            // Convert to JPG Data URL
+            const dataURL = tempCanvas.toDataURL('image/png', 1.0); // Quality (0.0 to 1.0)
+
+            // Create a link to download the image
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'chart-high-quality.png'; // Set default file name
+            link.click(); // Trigger the download
+
+            // Clean up the temporary canvas
+            tempCanvas.remove();
+        });
+
         document.getElementById('toggleNamesButton').addEventListener('click', toggleAllNames);
 
         const refreshColors = document.getElementById('refreshColors');
