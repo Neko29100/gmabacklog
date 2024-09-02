@@ -4,9 +4,19 @@ let allData = [];
 let showLabels = true; // Track whether labels should be shown
 let areAllNamesHidden = false;
 let sortByLatest = false; // Track the current sorting method
+let savedColors = {}; // To store colors from color.json
 
 const colors = {}; // Store colors for each name
 const visibilityState = {}; // Tracks the visibility of each dataset (name)
+
+let debounceTimer;
+function debounce(func, delay) {
+  return function(...args) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func(...args), delay);
+  };
+}
+
 
 const sheetSelect = document.getElementById("sheetSelect");
 sheetSelect.addEventListener("change", async () => {
@@ -39,6 +49,14 @@ async function fetchChartData() {
     labels = data.slice(1).map((row) => row[0]);
     allData = data;
 
+    try {
+        const response = await fetch('colors.json'); // Update the path to your color.json file
+        const data = await response.json();
+        savedColors = data; // Assume the data is a key-value map of name-color pairs
+      } catch (error) {
+        console.error("Error fetching colors:", error);
+      }
+
     // Initialize colors and color pickers
     initializeColorPickers();
 
@@ -64,24 +82,26 @@ async function fetchChartData() {
     cutoffInput.dispatchEvent(new Event("input")); // Trigger initial update
 
     // Initialize the chart with the full range
-    updateChart(0, labels.length - 1);
+    //updateChart(0, labels.length - 1);
 
     // Update the chart when the slider values change
-    slider.noUiSlider.on("update", (values, handle) => {
-      const startLabel = values[0];
-      const endLabel = values[1];
-      const start = labels.indexOf(startLabel);
-      const end = labels.indexOf(endLabel);
-      updateChart(start, end);
-    });
+    slider.noUiSlider.on("update", debounce((values) => {
+        const startLabel = values[0];
+        const endLabel = values[1];
+        const start = labels.indexOf(startLabel);
+        const end = labels.indexOf(endLabel);
+        updateChart(start, end);
+        console.log("slider");
+      }, 100));
 
     // Update the chart when the cutoff value changes
-    cutoffInput.addEventListener("input", () => {
-      const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
-      const start = labels.indexOf(startLabel);
-      const end = labels.indexOf(endLabel);
-      updateChart(start, end);
-    });
+    cutoffInput.addEventListener("input", debounce(() => {
+        const [startLabel, endLabel] = slider.noUiSlider.get();
+        const start = labels.indexOf(startLabel);
+        const end = labels.indexOf(endLabel);
+        updateChart(start, end);
+        console.log("cutoff");
+      }, 100));
 
     // Toggle dots visibility
     const dotsToggle = document.getElementById("dotsToggle");
@@ -179,16 +199,28 @@ async function fetchChartData() {
         );
      toggleRefresh(sortedNames)});
 
+     console.log('Color Data:', savedColors);
+
+     if (savedColors.colors) {
+        Object.keys(savedColors.colors).forEach((name) => {
+          colors[name] = savedColors.colors[name];
+        });
+      }
+
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 }
 
 function toggleRefresh (sortedNames) {
-    Object.keys(colors).forEach((name) => delete colors[name]);
-
+    Object.keys(colors).forEach((name) => {
+        if(!savedColors[name]) {
+            delete colors[name]
+        }
+        
+    });
       sortedNames.forEach((name) => {
-        const color = getRandomColor(name);
+        const color = savedColors[name] || getRandomColor(name);
         console.log(`Color for ${name}: ${color}`); // Debugging line
       });
 
@@ -201,6 +233,9 @@ function toggleRefresh (sortedNames) {
 function initializeColorPickers(startIndex, endIndex) {
   const colorPickerContainer = document.getElementById("colorPickerContainer");
   colorPickerContainer.innerHTML = ""; // Clear existing color pickers
+
+    // Fetch saved colors before initializing color pickers
+   // await fetchColors();
 
   const names = allData[0].slice(1);
   const totalPoints = {};
@@ -221,7 +256,8 @@ function initializeColorPickers(startIndex, endIndex) {
   );
 
   sortedNames.forEach((name) => {
-    const color = getRandomColor(name); // Get current color
+    // Use saved color if available, otherwise get a random color
+    const color = savedColors[name] || getRandomColor(name);
     colors[name] = color; // Store color for this name
 
     const visibility = visibilityState[name] === false ? "hidden" : "visible"; // Ensure default visibility

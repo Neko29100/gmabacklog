@@ -1,0 +1,151 @@
+/* Importing Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+/* Reset and basic styling */
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    background: #f0f2f5; /* Light gray background for the page */
+}
+
+.chart-container h2, .controls-container h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    margin-top: 5px;
+    text-align: center;
+    border-bottom: 2px solid #ddd; /* Optional: Adds a line under the title */
+    padding-bottom: 10px; /* Space between the title and the content */
+}
+
+
+/* Main container */
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    max-width: 1800px;
+    height: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #fff; /* White background for the container */
+}
+
+/* Chart area styling */
+.chart-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #fdfdfd; /* Slightly off-white background */
+}
+
+/* Controls area styling */
+.controls-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #ffffff;
+    border-left: 1px solid #ddd;
+}
+
+/* Slider styling */
+#slider {
+    width: 80%;
+    margin: 20px auto;
+    margin-top: 50px;
+}
+
+/* Select and input styling */
+select, input[type="number"] {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Button styling */
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Button shadow */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Spacing for control sections */
+.number-controls {
+    margin-bottom: 20px;
+}
+
+.toggle-controls {
+    margin-bottom: 20px;
+}
+
+.buttons {
+    margin-bottom: 20px;
+}
+
+/* Scrollable color picker container */
+#colorPickerContainer {
+    max-height: 80%;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Color picker item styling */
+.color-picker-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+/* Name label styling */
+.name-label {
+    width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 10px;
+    cursor: pointer;
+    text-align: left;
+}
+
+/* Color picker input styling */
+.color-picker {
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Custom scrollbar for color picker container */
+#colorPickerContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#colorPickerContainer::-webkit-scrollbar-thumb {
+    background-color: #007bff; /* Match scrollbar thumb with button color */
+    border-radius: 4px;
+}
