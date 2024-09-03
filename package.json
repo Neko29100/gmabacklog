@@ -20,6 +20,7 @@
     "nodeplotlib": "^1.1.2",
     "numeric": "^1.2.6",
     "numerical": "^0.2.4",
+    "p5": "^1.10.0",
     "regression": "^2.0.1",
     "simple-statistics": "^7.8.3"
   }

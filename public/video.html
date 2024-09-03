@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesChart.css">
+    <title>Bar Chart Race</title>
+</head>
+<body>
+    <div class="icon-container">
+        <a href="index.html">
+            <img src="icon2.png" alt="Go to video" class="icon">
+        </a>
+    </div>
+    <div class="container">
+        <div class="chart-container">
+            <h1>Bar Chart Race</h1>
+            <svg id="chart" width="800" height="500"></svg>
+            <div class="date-display">
+                <span id="dateDisplay">Date: </span>
+            </div>
+        </div>
+        <div class="controls-container">
+            <select id="sheetSelect">
+                <option value="30k total clean">Total Adjusted</option>
+                <option value="20k total clean">Total Non-adjusted</option>
+                <option value="mixed total clean">Total Mixed</option>
+                <option value="TT clean">TT</option>
+                <option value="30k HS clean">HS Adjusted</option>
+                <option value="20k HS clean">HS Non-adjusted</option>
+                <option value="mixed HS clean">HS Mixed</option>
+                <option value="WR clean">WRs</option>
+            </select>
+            <input type="range" id="dateSlider" min="0" max="0" step="1" value="0" />
+            <button id="pauseButton">Play</button>
+            <button id="restart">Restart</button>
+            <label>
+                <input type="checkbox" id="labelToggle" checked>
+                Show Data Labels
+            </label>
+            <input type="range" id="timeSlider" min="100" max="2000" value="500" step="100">
+            <span id="timeDisplay">500ms</span>
+        </div>
+    </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="chartRace.js"></script>
+</body>
+</html>
