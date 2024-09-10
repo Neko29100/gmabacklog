@@ -30,8 +30,8 @@ sheetSelect.addEventListener("change", async () => {
 document.getElementById("sortToggle").addEventListener("click", () => {
   sortByLatest = !sortByLatest; // Toggle the sorting method
   document.getElementById("sortToggle").textContent = sortByLatest
-    ? "Sort by Cumulative"
-    : "Sort by Latest"; // Update button text
+    ? "Sorting by Cumulative"
+    : "Sorting by Latest"; // Update button text
 
   const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
   const start = labels.indexOf(startLabel);
@@ -350,7 +350,7 @@ function updateChart(startIndex, endIndex) {
 
   let topNames;
 
-  if (sortByLatest) {
+  if (!sortByLatest) {
     const lastPoints = {};
     names.forEach((name, index) => {
       const dataSlice = allData
