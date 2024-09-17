@@ -22,14 +22,14 @@
         </div>
         <div class="controls-container">
             <select id="sheetSelect">
-                <option value="30k total clean">Total Adjusted</option>
-                <option value="20k total clean">Total Non-adjusted</option>
-                <option value="mixed total clean">Total Mixed</option>
-                <option value="TT clean">TT</option>
-                <option value="30k HS clean">HS Adjusted</option>
-                <option value="20k HS clean">HS Non-adjusted</option>
-                <option value="mixed HS clean">HS Mixed</option>
-                <option value="WR clean">WRs</option>
+                <option value="30k total">Total Adjusted</option>
+                <option value="20k total">Total Non-adjusted</option>
+                <option value="mixed total">Total Mixed</option>
+                <option value="TT">TT</option>
+                <option value="30k HS -">HS Adjusted</option>
+                <option value="20k HS -">HS Non-adjusted</option>
+                <option value="mixed HS -">HS Mixed</option>
+                <option value="WRs -">WRs</option>
             </select>
             <input type="range" id="dateSlider" min="0" max="0" step="1" value="0" />
             <button id="pauseButton">Play</button>
@@ -38,8 +38,8 @@
                 <input type="checkbox" id="labelToggle" checked>
                 Show Data Labels
             </label>
-            <input type="range" id="timeSlider" min="100" max="2000" value="500" step="100">
-            <span id="timeDisplay">500ms</span>
+            <input type="range" id="timeSlider" min="10" max="100" value="50" step="10">
+            <span id="timeDisplay">50ms</span>
         </div>
     </div>
     <script src="https://d3js.org/d3.v7.min.js"></script>

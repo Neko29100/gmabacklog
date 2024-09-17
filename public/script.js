@@ -1,13 +1,13 @@
 let chart;
 let labels = [];
 let allData = [];
-let showLabels = true; // Track whether labels should be shown
+let showLabels = true;
 let areAllNamesHidden = false;
-let sortByLatest = false; // Track the current sorting method
-let savedColors = {}; // To store colors from color.json
+let sortByLatest = false; 
+let savedColors = {};
 
-const colors = {}; // Store colors for each name
-const visibilityState = {}; // Tracks the visibility of each dataset (name)
+const colors = {};
+const visibilityState = {};
 
 let debounceTimer;
 function debounce(func, delay) {
@@ -21,22 +21,22 @@ function debounce(func, delay) {
 const sheetSelect = document.getElementById("sheetSelect");
 sheetSelect.addEventListener("change", async () => {
   await fetchChartData();
-  const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+  const [startLabel, endLabel] = slider.noUiSlider.get();
   const start = labels.indexOf(startLabel);
   const end = labels.indexOf(endLabel);
   updateChart(start, end);
 });
 
 document.getElementById("sortToggle").addEventListener("click", () => {
-  sortByLatest = !sortByLatest; // Toggle the sorting method
+  sortByLatest = !sortByLatest;
   document.getElementById("sortToggle").textContent = sortByLatest
     ? "Sorting by Cumulative"
-    : "Sorting by Latest"; // Update button text
+    : "Sorting by Latest";
 
-  const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+  const [startLabel, endLabel] = slider.noUiSlider.get();
   const start = labels.indexOf(startLabel);
   const end = labels.indexOf(endLabel);
-  updateChart(start, end); // Update the chart with the new sorting method
+  updateChart(start, end);
 });
 
 
@@ -50,41 +50,44 @@ async function fetchChartData() {
     allData = data;
 
     try {
-        const response = await fetch('colors.json'); // Update the path to your color.json file
+        const response = await fetch('colors.json');
         const data = await response.json();
-        savedColors = data; // Assume the data is a key-value map of name-color pairs
+        savedColors = data; 
       } catch (error) {
         console.error("Error fetching colors:", error);
       }
 
-    // Initialize colors and color pickers
     initializeColorPickers();
 
-    // Initialize the slider with the start handles positioned at the full range
-    const slider = document.getElementById("slider");
-    noUiSlider.create(slider, {
-      start: [0, labels.length - 1], // Set the initial positions of the handles
-      connect: true,
-      range: {
-        min: 0,
-        max: labels.length - 1,
-      },
-      tooltips: [true, true],
-      format: {
-        to: (value) => labels[Math.round(value)],
-        from: (value) => Math.round(value),
-      },
-    });
+    if (slider.noUiSlider) {
+      slider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: labels.length - 1,
+        },
+      });
 
-    // Set default cutoff value
+      slider.noUiSlider.set([0, labels.length - 1]);
+    } else {
+      noUiSlider.create(slider, {
+        start: [0, labels.length - 1],
+        connect: true,
+        range: {
+          min: 0,
+          max: labels.length - 1, 
+        },
+        tooltips: [true, true],
+        format: {
+          to: (value) => labels[Math.round(value)],
+          from: (value) => Math.round(value),
+        },
+      });
+    }
+
     const cutoffInput = document.getElementById("cutoff");
-    cutoffInput.value = 1; // Set default cutoff value
-    cutoffInput.dispatchEvent(new Event("input")); // Trigger initial update
+    cutoffInput.value = 1;
+    cutoffInput.dispatchEvent(new Event("input"));
 
-    // Initialize the chart with the full range
-    //updateChart(0, labels.length - 1);
-
-    // Update the chart when the slider values change
     slider.noUiSlider.on("update", debounce((values) => {
         const startLabel = values[0];
         const endLabel = values[1];
@@ -94,7 +97,6 @@ async function fetchChartData() {
         console.log("slider");
       }, 100));
 
-    // Update the chart when the cutoff value changes
     cutoffInput.addEventListener("input", debounce(() => {
         const [startLabel, endLabel] = slider.noUiSlider.get();
         const start = labels.indexOf(startLabel);
@@ -103,10 +105,9 @@ async function fetchChartData() {
         console.log("cutoff");
       }, 100));
 
-    // Toggle dots visibility
     const dotsToggle = document.getElementById("dotsToggle");
     dotsToggle.addEventListener("change", () => {
-      const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+      const [startLabel, endLabel] = slider.noUiSlider.get(); 
       const start = labels.indexOf(startLabel);
       const end = labels.indexOf(endLabel);
       updateChart(start, end);
@@ -114,16 +115,15 @@ async function fetchChartData() {
 
     const labelsToggle = document.getElementById("labelsToggle");
     labelsToggle.addEventListener("change", () => {
-      const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+      const [startLabel, endLabel] = slider.noUiSlider.get(); 
       const start = labels.indexOf(startLabel);
       const end = labels.indexOf(endLabel);
       updateChart(start, end);
     });
 
-    // Update the chart when the number of names to display changes
     const numNamesInput = document.getElementById("numNames");
     numNamesInput.addEventListener("input", () => {
-      const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+      const [startLabel, endLabel] = slider.noUiSlider.get();
       const start = labels.indexOf(startLabel);
       const end = labels.indexOf(endLabel);
       updateChart(start, end);
@@ -134,39 +134,30 @@ async function fetchChartData() {
       const originalWidth = canvas.width;
       const originalHeight = canvas.height;
 
-      // Scale factor for higher resolution
-      const scaleFactor = 2; // Increase to improve quality
-
-      // Create a temporary canvas to scale up the chart
+      const scaleFactor = 2;
       const tempCanvas = document.createElement("canvas");
       const tempCtx = tempCanvas.getContext("2d");
 
       tempCanvas.width = originalWidth * scaleFactor;
       tempCanvas.height = originalHeight * scaleFactor;
 
-      // Scale up and redraw the chart
       tempCtx.scale(scaleFactor, scaleFactor);
 
-      // Draw chart on the temporary canvas
       tempCtx.drawImage(canvas, 0, 0);
 
-      // Fill the canvas with white background
       tempCtx.save();
       tempCtx.globalCompositeOperation = "destination-over";
       tempCtx.fillStyle = "white";
       tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       tempCtx.restore();
 
-      // Convert to JPG Data URL
-      const dataURL = tempCanvas.toDataURL("image/png", 1.0); // Quality (0.0 to 1.0)
+      const dataURL = tempCanvas.toDataURL("image/png", 1.0);
 
-      // Create a link to download the image
       const link = document.createElement("a");
       link.href = dataURL;
-      link.download = "chart-high-quality.png"; // Set default file name
-      link.click(); // Trigger the download
+      link.download = "chart-high-quality.png";
+      link.click();
 
-      // Clean up the temporary canvas
       tempCanvas.remove();
     });
 
@@ -179,7 +170,7 @@ async function fetchChartData() {
     .addEventListener("click", () => {
         const names = allData[0].slice(1);
         const totalPoints = {};
-        const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+        const [startLabel, endLabel] = slider.noUiSlider.get();
         const start = labels.indexOf(startLabel);
         const end = labels.indexOf(endLabel);
       
@@ -221,10 +212,10 @@ function toggleRefresh (sortedNames) {
     });
       sortedNames.forEach((name) => {
         const color = savedColors[name] || getRandomColor(name);
-        console.log(`Color for ${name}: ${color}`); // Debugging line
+        console.log(`Color for ${name}: ${color}`);
       });
 
-      const [startLabel, endLabel] = slider.noUiSlider.get(); // Get current slider positions
+      const [startLabel, endLabel] = slider.noUiSlider.get();
       const start = labels.indexOf(startLabel);
       const end = labels.indexOf(endLabel);
       updateChart(start, end);
@@ -232,10 +223,7 @@ function toggleRefresh (sortedNames) {
 
 function initializeColorPickers(startIndex, endIndex) {
   const colorPickerContainer = document.getElementById("colorPickerContainer");
-  colorPickerContainer.innerHTML = ""; // Clear existing color pickers
-
-    // Fetch saved colors before initializing color pickers
-   // await fetchColors();
+  colorPickerContainer.innerHTML = "";
 
   const names = allData[0].slice(1);
   const totalPoints = {};
@@ -256,11 +244,10 @@ function initializeColorPickers(startIndex, endIndex) {
   );
 
   sortedNames.forEach((name) => {
-    // Use saved color if available, otherwise get a random color
     const color = savedColors[name] || getRandomColor(name);
-    colors[name] = color; // Store color for this name
+    colors[name] = color;
 
-    const visibility = visibilityState[name] === false ? "hidden" : "visible"; // Ensure default visibility
+    const visibility = visibilityState[name] === false ? "hidden" : "visible";
 
     const colorPickerHtml = `
             <div class="color-picker-item" data-name="${name}">
@@ -275,28 +262,25 @@ function initializeColorPickers(startIndex, endIndex) {
     colorPickerContainer.insertAdjacentHTML("beforeend", colorPickerHtml);
   });
 
-  // Add event listeners for color pickers
   document.querySelectorAll(".color-picker").forEach((picker) => {
     picker.addEventListener("change", (event) => {
       const name = event.target.getAttribute("data-name");
       const newColor = event.target.value;
       colors[name] = newColor;
-      updateChart(startIndex, endIndex); // Update chart with new colors
+      updateChart(startIndex, endIndex);
     });
   });
 
-  // Add event listeners for toggling visibility by clicking the name
   document.querySelectorAll(".name-label").forEach((label) => {
     label.addEventListener("click", (event) => {
       const name = event.target.getAttribute("data-name");
-      visibilityState[name] = !visibilityState[name]; // Toggle visibility state
-      updateChart(startIndex, endIndex); // Update chart to reflect the change
+      visibilityState[name] = !visibilityState[name]; 
+      updateChart(startIndex, endIndex);
     });
   });
 }
 
 function getRandomColor(name) {
-  // Assign a consistent random color for each name if it doesn't have one
   if (!colors[name]) {
     const letters = "0123456789ABCDEF";
     let color = "#";
@@ -309,23 +293,21 @@ function getRandomColor(name) {
 }
 
 function toggleAllNames() {
-  const names = allData[0].slice(1); // Get all names from the data
+  const names = allData[0].slice(1);
 
   if (areAllNamesHidden) {
-    // Show all names
     names.forEach((name) => {
       visibilityState[name] = true;
     });
-    document.getElementById("toggleNamesButton").textContent = "Hide All"; // Update button text
+    document.getElementById("toggleNamesButton").textContent = "Hide All"; 
   } else {
     // Hide all names
     names.forEach((name) => {
       visibilityState[name] = false;
     });
-    document.getElementById("toggleNamesButton").textContent = "Show All"; // Update button text
+    document.getElementById("toggleNamesButton").textContent = "Show All";
   }
 
-  // Update the chart with the current range
   const [startLabel, endLabel] = document
     .getElementById("slider")
     .noUiSlider.get();
@@ -333,81 +315,127 @@ function toggleAllNames() {
   const end = labels.indexOf(endLabel);
   updateChart(start, end);
 
-  // Toggle the state
   areAllNamesHidden = !areAllNamesHidden;
 }
 
+function getWeeklyData(data, labels, startIndex, endIndex) {
+  const filteredLabels = [];
+  const filteredData = [];
+
+  for (let i = startIndex; i <= endIndex; i += 7) {
+    filteredLabels.push(labels[i]);
+    filteredData.push(data[i]);
+  }
+
+  return { filteredLabels, filteredData };
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("intervalSelect").addEventListener("change", function() {
+    const [startLabel, endLabel] = slider.noUiSlider.get(); 
+    const start = labels.indexOf(startLabel);
+    const end = labels.indexOf(endLabel);
+    updateChart(start, end);
+  });
+
+  const [startLabel, endLabel] = slider.noUiSlider.get(); 
+  const start = labels.indexOf(startLabel);
+  const end = labels.indexOf(endLabel);
+  updateChart(start, end);
+});
+
 function updateChart(startIndex, endIndex) {
-  const filteredLabels = labels.slice(startIndex, endIndex + 1);
+  const intervalSelectElement = document.getElementById("intervalSelect");
+
+
+  if (!intervalSelectElement) {
+    console.error("Interval select element not found.");
+    return;
+  }
+
+  const selectedInterval = intervalSelectElement.value;
   const cutoffValue = parseFloat(document.getElementById("cutoff").value) || 0;
   const showDots = !document.getElementById("dotsToggle").checked;
   showLabels = document.getElementById("labelsToggle").checked;
-
-  const numNames =
-    parseInt(document.getElementById("numNames").value) || Infinity;
+  const numNames = parseInt(document.getElementById("numNames").value) || Infinity;
   const datasets = [];
   const names = allData[0].slice(1);
 
   let topNames;
+  const filteredLabels = [];
+  const filteredData = [];
 
   if (!sortByLatest) {
     const lastPoints = {};
     names.forEach((name, index) => {
-      const dataSlice = allData
-        .slice(1)
-        .map((row) => row[index + 1])
-        .slice(startIndex, endIndex + 1);
-      // Get the last data point
+      const dataSlice = allData.slice(1).map((row) => row[index + 1]).slice(startIndex, endIndex + 1);
       lastPoints[name] = parseFloat(dataSlice[dataSlice.length - 1]) || 0;
     });
 
-    // Sort names based on the last data point in descending order
-    const sortedNames = Object.keys(lastPoints).sort(
-      (a, b) => lastPoints[b] - lastPoints[a]
-    );
-
-    // Get the top names based on the sorted order
+    const sortedNames = Object.keys(lastPoints).sort((a, b) => lastPoints[b] - lastPoints[a]);
     topNames = sortedNames.slice(0, numNames);
   } else {
     const totalPoints = {};
     names.forEach((name, index) => {
-      const dataSlice = allData
-        .slice(1)
-        .map((row) => row[index + 1])
-        .slice(startIndex, endIndex + 1);
-      totalPoints[name] = dataSlice.reduce(
-        (acc, val) => acc + parseFloat(val) || 0,
-        0
-      );
+      const dataSlice = allData.slice(1).map((row) => row[index + 1]).slice(startIndex, endIndex + 1);
+      totalPoints[name] = dataSlice.reduce((acc, val) => acc + parseFloat(val) || 0, 0);
     });
 
-    const sortedNames = Object.keys(totalPoints).sort(
-      (a, b) => totalPoints[b] - totalPoints[a]
-    );
+    const sortedNames = Object.keys(totalPoints).sort((a, b) => totalPoints[b] - totalPoints[a]);
     topNames = sortedNames.slice(0, numNames);
   }
 
-  console.log(topNames);
+  // Apply interval selection (daily or weekly)
+  const labels = allData.slice(1).map((row) => row[0]).slice(startIndex, endIndex + 1);
+
+  switch (selectedInterval){
+    case "daily":
+      filteredLabels.push(...labels);
+      break;
+    case "weekly":
+      for (let i = 0; i < labels.length; i += 7) {
+        filteredLabels.push(labels[i]); 
+      }
+      break;
+    case "monthly":
+      for (let i = 0; i < labels.length; i += 30) {
+        filteredLabels.push(labels[i]);
+      }
+    break;
+  }
+
+
 
   topNames.forEach((name) => {
-    const dataSlice = allData
-      .slice(1)
-      .map((row) => row[names.indexOf(name) + 1])
-      .slice(startIndex, endIndex + 1);
-    const filteredDataSlice = dataSlice
-      .map((value, idx) =>
-        value >= cutoffValue ? { x: filteredLabels[idx], y: value } : null
-      )
-      .filter((v) => v !== null);
+    let dataSlice = allData.slice(1).map((row) => row[names.indexOf(name) + 1]).slice(startIndex, endIndex + 1);
 
-    if (filteredDataSlice.length > 0) {
+    const filteredDataSlice = [];
+
+    switch (selectedInterval){
+      case "weekly":
+
+      for (let i = 0; i < dataSlice.length; i += 7) {
+        filteredDataSlice.push(dataSlice[i]);
+      }
+      dataSlice = filteredDataSlice;
+        break;
+      case "monthly":
+        
+        for (let i = 0; i < labels.length; i += 30) {
+          filteredDataSlice.push(dataSlice[i]);
+      }
+      dataSlice = filteredDataSlice;
+      break;
+    }
+
+    const filteredDataPoints = dataSlice.map((value, idx) => value >= cutoffValue ? { x: filteredLabels[idx], y: value } : null).filter((v) => v !== null);
+
+    if (filteredDataPoints.length > 0) {
       datasets.push({
         label: showLabels ? name : "",
-        data: filteredDataSlice,
+        data: filteredDataPoints,
         borderColor: colors[name] || getRandomColor(name),
-        backgroundColor: showDots
-          ? colors[name] || getRandomColor(name)
-          : "transparent",
+        backgroundColor: showDots ? colors[name] || getRandomColor(name) : "transparent",
         borderWidth: 2,
         pointRadius: showDots ? 0 : 2,
         hidden: visibilityState[name] === false,
@@ -423,7 +451,7 @@ function updateChart(startIndex, endIndex) {
   chart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: filteredLabels,
+      labels: filteredLabels, 
       datasets: datasets,
     },
     options: {
@@ -458,11 +486,11 @@ function updateChart(startIndex, endIndex) {
                 text: "Date",
                 enabled: true,
                 position: "center",
-                backgroundColor: "rgba(255, 255, 255, 0.8)", // Background color for readability
-                color: "black", // Text color
+                backgroundColor: "rgba(255, 255, 255, 0.8)",
+                color: "black", 
                 font: {
-                  size: 12, // Font size
-                  weight: "bold", // Font weight
+                  size: 12, 
+                  weight: "bold", 
                 },
               },
             },
@@ -471,9 +499,8 @@ function updateChart(startIndex, endIndex) {
       },
     },
   });
-  
+
   initializeColorPickers(startIndex, endIndex);
 }
 
-// Ensure the chart data is fetched and the chart is initialized when the page loads
 document.addEventListener("DOMContentLoaded", fetchChartData);

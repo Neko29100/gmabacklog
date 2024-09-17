@@ -27,15 +27,28 @@
         </div>
         <div class="controls-container">
             <select id="sheetSelect">
-                <option value="30k total clean">Total Adjusted</option>
-                <option value="20k total clean">Total Non-adjusted</option>
-                <option value="mixed total clean">Total Mixed</option>
-                <option value="TT clean">TT</option>
-                <option value="30k HS clean">HS Adjusted</option>
-                <option value="20k HS clean">HS Non-adjusted</option>
-                <option value="mixed HS clean">HS Mixed</option>
-                <option value="WR clean">WRs</option>
+                <option value="30k total">Total Adjusted</option>
+                <option value="20k total">Total Non-adjusted</option>
+                <option value="mixed total">Total Mixed</option>
+                <option value="TT">TT</option>
+                <option value="30k HS -">HS Adjusted</option>
+                <option value="20k HS -">HS Non-adjusted</option>
+                <option value="mixed HS -">HS Mixed</option>
+                <option value="WRs -">WRs</option>
             </select>
+
+            <label for="intervalSelect">Select Interval: </label>
+            <select id="intervalSelect">
+              <option value="daily">Daily</option>
+              <option value="weekly"selected>Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+            
+            <div id="customIntervalDiv" style="display:none;">
+              <label for="customInterval">Custom Interval (days): </label>
+              <input type="number" id="customInterval" min="1" value="1">
+            </div>
+            
             
             <div class="number-controls">
                 <label for="cutoff">Cutoff Value</label>

@@ -16,13 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const yAxis = d3.axisLeft(y);
 
     let colorMapping = {};
-    const defaultColors = [
-        '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b',
-        '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#f4a582', '#92c5de',
-        '#11098A', '#e41a1c', '#377eb8', '#4daf4a', '#ff7f00', '#ffff33',
-        '#a65628', '#f781bf', '#999999'
-      ];
-    
+    const defaultColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#f4a582', '#92c5de', '#11098A', '#e41a1c', '#377eb8', '#4daf4a', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999'];
+
     async function loadColors() {
         try {
             const response = await fetch('colors.json');
@@ -38,21 +33,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     loadColors();
 
-    let fixedXDomain = [0, 6900000]; // Default domain
+    let fixedXDomain = [0, 6900000]; 
     let index = 0;
     let isPaused = true;
     let timeoutId = null;
     let currentData = [];
     let headers = [];
-    let updateInterval = 500;
-
+    let updateInterval = 50;
+    let transitionInterval = 150;
     let showLabels = true;
 
     document.getElementById("labelToggle").addEventListener('change', function() {
         showLabels = this.checked;
         updateChart();
     });
-
 
     async function fetchChartData() {
         try {
@@ -62,31 +56,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const sheetName = sheetSelect.value;
-            console.log(`Fetching data for sheet: ${sheetName}`);
 
-            // Adjust fixedXDomain based on sheet selection
             switch (sheetName) {
-                case "WR clean":
+                case "WRs -":
                     fixedXDomain = [0, 160];
-
                     break;
-                case "30k HS clean":
-                case "mixed HS clean":
+                case "30k HS -":
+                case "mixed HS -":
                     fixedXDomain = [0, 2200000];
-
                     break;
-                case "20k HS clean":
+                case "20k HS -":
                     fixedXDomain = [0, 1500000]
                     break;
-                case "30k total clean":
-                case "mixed total clean":
-                    fixedXDomain = [0, 6900000];
-        
+                case "30k total":
+                case "mixed total":
+                    fixedXDomain = [0, 7500000];
                     break;
-                case "20k total clean":
+                case "20k total":
                     fixedXDomain = [0, 6500000]
                     break;
-                case "TT clean":
+                case "TT":
                     fixedXDomain = [0, 5600000]
                     break;
             }
@@ -97,20 +86,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const data = await response.json();
-            console.log("Loaded data:", data);
 
             if (!data || !data.length) {
-                console.error("No data available from the fetch.");
                 return;
             }
 
-            headers = data[0].slice(1); // Headers excluding the date
-            const rawData = data.slice(1); // Excludes headers
+            headers = data[0].slice(1);
+            const rawData = data.slice(1); 
 
             currentData = rawData.map(row => [row[0], ...row.slice(1)]);
 
             updateSlider();
-            updateChart(); // Call updateChart after data is fetched and updated
+            updateChart(); 
 
         } catch (error) {
             console.error('Error loading or parsing data:', error);
@@ -119,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateChart() {
         if (!currentData || currentData.length === 0 || !headers || headers.length === 0) {
-            console.error("No data available for the chart.");
             return;
         }
     
@@ -127,17 +113,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = data[0];
         const values = data.slice(1);
     
-        const combinedData = headers
-            .map((label, i) => ({
-                label: label,
-                value: values[i],
-                color: colorMapping[label] || defaultColors[i % defaultColors.length] // Use color from mapping or default
-            }))
-            .filter(d => d.value > 0)
-            .sort((a, b) => b.value - a.value);
+        const combinedData = headers.map((label, i) => ({
+            label: label,
+            value: values[i],
+            color: colorMapping[label] || defaultColors[i % defaultColors.length]
+        })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
     
         if (combinedData.length === 0) {
-            console.error("All values are zero or there is no data to display.");
             return;
         }
     
@@ -152,47 +134,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
         const bars = g.selectAll(".bar").data(combinedData, d => d.label);
     
-        // Enter phase
-        bars.enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", 0)
-            .attr("y", d => y(d.label))
-            .attr("width", 0) // Start with width 0 for smooth animation
-            .attr("height", y.bandwidth())
-            .attr("fill", d => d.color)
-            .merge(bars)
-            .transition()
-            .duration(400)
-            .attr("width", d => x(d.value)) // Animate width
-            .attr("y", d => y(d.label))
-            .attr("height", y.bandwidth());
+        bars.enter().append("rect").attr("class", "bar").attr("x", 0).attr("y", d => y(d.label)).attr("width", 0).attr("height", y.bandwidth()).attr("fill", d => d.color).merge(bars).transition().duration(transitionInterval).attr("width", d => x(d.value)).attr("y", d => y(d.label)).attr("height", y.bandwidth());
     
-        // Exit phase
-        bars.exit().transition().duration(400).attr("width", 0).remove();
+        bars.exit().transition().duration(50).attr("width", 0).remove();
     
-        // Update labels
-        g.selectAll(".label").remove(); // Remove existing labels
+        g.selectAll(".label").remove();
     
         if (showLabels) {
-            g.selectAll(".label")
-                .data(combinedData)
-                .enter().append("text")
-                .attr("class", "chart-label") // Apply the CSS class
-                .attr("class", "label") // Apply the CSS class
-                .attr("x", d => x(d.value) + 5)
-                .attr("y", d => y(d.label) + y.bandwidth() / 2)
-                .attr("dy", ".35em")
-                .text(d => d.value);
+            g.selectAll(".label").data(combinedData).enter().append("text").attr("class", "chart-label").attr("class", "label").attr("x", d => x(d.value) + 5).attr("y", d => y(d.label) + y.bandwidth() / 2).attr("dy", ".35em").text(d => Math.round(d.value));
         }
-        
     
         document.getElementById("dateDisplay").textContent = `Date: ${date}`;
     
         if (!isPaused) {
             index++;
             if (index >= currentData.length) {
-                clearTimeout(timeoutId); // Stop the update loop when reaching the end
-                return; // Exit the function
+                clearTimeout(timeoutId);
+                return;
             }
             const slider = document.getElementById("dateSlider");
             if (slider) slider.value = index;
@@ -200,13 +158,10 @@ document.addEventListener('DOMContentLoaded', function() {
             timeoutId = setTimeout(updateChart, updateInterval);
         }
     }
-    
-    
-    
 
     function handleSliderChange(event) {
         index = parseInt(event.target.value, 10);
-        updateChart(); // Update the chart based on slider value
+        updateChart();
     }
 
     function handlePauseButtonClick() {
@@ -217,25 +172,58 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isPaused) {
             clearTimeout(timeoutId);
         } else {
-            updateChart(); // Resume chart updates
+            updateChart();
         }
     }
 
     function handleTimeSliderChange(event) {
         updateInterval = parseInt(event.target.value, 10);
         document.getElementById("timeDisplay").textContent = `${updateInterval}ms`;
+        
+        switch (updateInterval) {
+            case 10:
+                transitionInterval = 50;
+                break;
+            case 20:
+                transitionInterval = 60;
+                break;
+            case 30:
+                transitionInterval = 100;
+                break;
+            case 40:
+                transitionInterval = 120;
+                break;
+            case 50:
+                transitionInterval = 150;
+                break;
+            case 60:
+                transitionInterval = 160;
+                break;
+            case 70:
+                transitionInterval = 160;
+                break;
+            case 80:
+                transitionInterval = 170;
+                break;
+            case 90:
+                transitionInterval = 190;
+                break;
+            case 100:
+                transitionInterval = 200;
+                break;
+        }
 
         if (!isPaused) {
             clearTimeout(timeoutId);
-            updateChart(); // Restart the update with the new interval
+            updateChart();
         }
     }
 
     function updateSlider() {
         const slider = document.getElementById("dateSlider");
         if (slider) {
-            slider.max = currentData.length - 1; // Set max value to the last index of data
-            slider.value = index; // Set slider value to current index
+            slider.max = currentData.length - 1;
+            slider.value = index;
             document.getElementById("dateDisplay").textContent = `Date: ${currentData[index][0]}`;
         }
     }
@@ -245,12 +233,9 @@ document.addEventListener('DOMContentLoaded', function() {
         updateChart();
     }
 
-    // Attach event listeners
     const sheetSelect = document.getElementById("sheetSelect");
     if (sheetSelect) {
-        sheetSelect.addEventListener("change", fetchChartData); // Fetch new data on change
-    } else {
-        console.error('Element with id "sheetSelect" not found.');
+        sheetSelect.addEventListener("change", fetchChartData);
     }
 
     const pauseButton = document.getElementById("pauseButton");
@@ -273,8 +258,5 @@ document.addEventListener('DOMContentLoaded', function() {
         timeSlider.addEventListener('input', handleTimeSliderChange);
     }
 
-    
-
-    // Fetch initial data
     fetchChartData();
 });
