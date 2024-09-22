@@ -19,7 +19,7 @@ function calculateRange(sheetName) {
 
     if (sheetName == "20k total" || sheetName == "20k HS") {
         endRow = 1665;
-    }
+    } 
 
     return `A1:AR${endRow}`;
     

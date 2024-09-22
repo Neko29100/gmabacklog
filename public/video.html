@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="stylesChart.css">
+    <link rel="stylesheet" href="css/stylesChart.css">
     <title>Bar Chart Race</title>
 </head>
 <body>
-    <div class="icon-container">
-        <a href="index.html">
-            <img src="icon2.png" alt="Go to video" class="icon">
-        </a>
-    </div>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="#">Grand Mountain Adventure</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="lb.html">Leaderboard</a></li>
+            <li><a href="main.html">Graphs</a></li>
+            <li><a href="video.html">Chart Race</a></li>
+            <li><a href="info.html">Game Info</a></li>
+            <li><a href="https://discord.gg/grand-mountain-adventure-544217348710858803">Discord</a></li>
+        </ul>
+    </nav>
     <div class="container">
         <div class="chart-container">
             <h1>Bar Chart Race</h1>
@@ -41,8 +49,9 @@
             <input type="range" id="timeSlider" min="10" max="100" value="50" step="10">
             <span id="timeDisplay">50ms</span>
         </div>
+
     </div>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="chartRace.js"></script>
+    <script src="js/chartRace.js"></script>
 </body>
 </html>

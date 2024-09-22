@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Data</title>
+    <link rel="stylesheet" href="css/lbStyles.css"> <!-- Link to external CSS -->
+    <style>
+        /* Add CSS for the dropdown menu */
+        #dropdown-container {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="#">Grand Mountain Adventure</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="lb.html">Leaderboard</a></li>
+            <li><a href="main.html">Graphs</a></li>
+            <li><a href="video.html">Chart Race</a></li>
+            <li><a href="info.html">Game Info</a></li>
+            <li><a href="https://discord.gg/grand-mountain-adventure-544217348710858803">Discord</a></li>
+        </ul>
+    </nav>
+    <div id="dropdown-container">
+        <label for="row-offset">Select Data Set:</label>
+        <select id="row-offset">
+            <option value="0">Total</option>
+            <option value="12">Hirschalm</option>
+            <option value="24">Waldtal</option>
+            <option value="36">Elnakka</option>
+            <option value="48">Rotkamm</option>
+            <option value="60">Saint Luvette</option>
+            <option value="72">Ben Ailig</option>
+            <option value="84">Mount Fairview</option>
+            <option value="96">Pinecone Peaks</option>
+            <option value="108">Agpat Island</option>
+            <!-- Add more options if needed -->
+        </select>
+    </div>
+
+    <div id="data-output"></div>
+
+    <script>
+        const SHEET_ID = '1_-NCikVtDi38_WlQhPBsccjvZSszVhKN5d7y14UnDRU';
+        const API_KEY = 'AIzaSyAbBLHfjrG_a-_J164or-Fea_tqAKewdao'; // Replace with your API key
+        const TAB_NAME = 'Rating LB'; // Replace with the actual name of your tab
+
+        async function fetchData(offset = 0) {
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${TAB_NAME}?key=${API_KEY}`);
+            const data = await response.json();
+
+            if (data.values) {
+                let output = '<h2>Sheet Data:</h2><table>';
+
+                // Add headers with blank columns between groups
+                output += `<tr>
+                    <th>Rank</th><th>Name</th><th>Score</th><th class="blank-column"></th>
+                    <th>Rank</th><th>Name</th><th>Score</th><th class="blank-column"></th>
+                    <th>Rank</th><th>Name</th><th>Score</th>
+                </tr>`;
+
+                // Process each row from the data starting from the 3rd row
+                for (let i = 2; i < data.values.length; i++) {
+                    const row = data.values[i];
+
+                    output += `<tr>
+                        <td class="column-1">${row[0 + offset] || ''}</td>
+                        <td class="column-2">${row[1 + offset] || ''}</td>
+                        <td class="column-3">${row[2 + offset] || ''}</td>
+                        <td class="blank-column"></td> <!-- Blank column between groups -->
+                        <td class="column-1">${row[4 + offset] || ''}</td> <!-- Start from 5th column (index 4) -->
+                        <td class="column-2">${row[5 + offset] || ''}</td>
+                        <td class="column-3">${row[6 + offset] || ''}</td>
+                        <td class="blank-column"></td> <!-- Blank column between groups -->
+                        <td class="column-1">${row[8 + offset] || ''}</td> <!-- Start from 9th column (index 8) -->
+                        <td class="column-2">${row[9 + offset] || ''}</td>
+                        <td class="column-3">${row[10 + offset] || ''}</td>
+                    </tr>`;
+                }
+
+                output += '</table>';
+                document.getElementById('data-output').innerHTML = output;
+            } else {
+                console.error('No data found.');
+            }
+        }
+
+        function onDropdownChange() {
+            const offset = parseInt(document.getElementById('row-offset').value, 10);
+            fetchData(offset);
+        }
+
+        document.getElementById('row-offset').addEventListener('change', onDropdownChange);
+
+        // Initial load with default offset
+        window.onload = () => fetchData(0); // Load with the initial offset value
+    </script>
+</body>
+</html>
