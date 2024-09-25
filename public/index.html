@@ -18,7 +18,7 @@
             <li><a href="lb.html">Leaderboard</a></li>
             <li><a href="main.html">Graphs</a></li>
             <li><a href="video.html">Chart Race</a></li>
-            <li><a href="info.html">Game Info</a></li>
+            <li><a href="game-info/info.html">Game Info</a></li>
             <li><a href="https://discord.gg/grand-mountain-adventure-544217348710858803">Discord</a></li>
         </ul>
     </nav>
@@ -39,7 +39,15 @@
             <div class="info-section">
                 <h2>Top Players of the Week</h2>
                 <p>Check out this week's biggest points-taker!</p>
+                <div id="loading-logo">
+                    <!-- You can use an image or an actual spinner -->
+                    <img src="images/loading-spinner.gif" alt="Loading..." />
+                </div>
                 <div id="leaderboard-output"></div>
+                <button id="show-scores-button">Show Highest Scores</button>
+                <div id="scores-table"></div>
+
+
             </div>
 
             <!-- Leaderboard Output -->
