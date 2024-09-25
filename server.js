@@ -54,7 +54,7 @@ function calculateRange(sheetName) {
         endRow = 1665;
     } 
 
-    return `A1:AR${endRow}`;
+    return `A1:BK${endRow}`;
 }
 
 // Fetch data from Google Sheets
